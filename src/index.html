@@ -14,7 +14,6 @@
   <br>
 
   <button id="activate"></button>
-  <!-- <input type="button" id="activate" value="" data-state="READY"/> -->
 
   <br>
 
@@ -23,8 +22,6 @@
 
   <br>
 
-  <!-- <label for="mainInput">Write here:</label> -->
-  <!-- <textarea id="mainInput" cols="50" rows="10"></textarea> -->
   <textarea id="mainInput"></textarea>
 
 </body>
@@ -69,19 +66,17 @@
 
       sessionLengthInput.value = sessionLengthInput.dataset.default
       gracePeriodInput.value = gracePeriodInput.dataset.default
-
       break
     case "UNPAUSED":
       activate.innerText = "Pause"
       mainInput.placeholder = "Write!"
-      mainInput.focus()
       mainInput.disabled = false
       sessionLengthInput.disabled = true
       gracePeriodInput.disabled = true
+      mainInput.focus()
 
       resetGraceInterval({start: true})
       resetSessionInterval({start: true})
-
       break
     case "PAUSED":
       activate.innerText = "Unpause"
@@ -105,7 +100,6 @@
     default: console.error(`unknown state '${activate.dataset.state}'`)
     }
   }
-
 
   let sessionInterval
   function resetSessionInterval({start, hard}) {
@@ -233,7 +227,6 @@
   #graceTimer {
     font-size: 1em;
   }
-
   #graceTimer.danger {
     color: red;
   }
@@ -241,7 +234,6 @@
   #sessionTimer {
     font-size: 1.5em;
   }
-
   #sessionTimer.done {
     font-size: 2em;
     color: green;
