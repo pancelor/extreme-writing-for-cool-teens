@@ -24,8 +24,22 @@
 
   <textarea id="mainInput"></textarea>
 
+  <br>
+
+  <p id="debugArea"></p>
+
 </body>
 <script type="text/javascript">
+
+  function debug(text) {
+    if (text) {
+      debugArea.innerText = text
+      mainInput.style.height = "10vh"
+    } else {
+      debugArea.innerText = ""
+      mainInput.style.height = "80vh" //@TODO sync with default somehow
+    }
+  }
 
   const ONE_SECOND = 1000
 
@@ -137,6 +151,7 @@
   }
 
   function noticeTyping(e) {
+    debug(JSON.stringify(e))
     if (e.data && /\S+/.exec(e.data)) {
       setGraceTimer(gracePeriodInput.value)
     }
@@ -219,7 +234,7 @@
   }
 
   #mainInput {
-    margin: auto;
+    /*margin: auto;*/
     width: 80vw;
     height: 80vh;
   }
