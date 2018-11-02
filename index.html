@@ -180,14 +180,14 @@
   }
 
   function noticeTyping(e) {
-    if (e.key && /^\S$/.exec(e.key)) {
+    if (e.data && /^\S$/.exec(e.data)) {
       setGraceTimer(gracePeriodInput.value)
     }
     noticeWordCount()
   }
 
   // mainInput.addEventListener("keyup", noticeTyping) // for android
-  mainInput.addEventListener("keypress", noticeTyping)
+  mainInput.addEventListener("input", noticeTyping)
 
   sessionLengthInput.addEventListener('blur', () => {
     // remove floats, use default
@@ -206,10 +206,8 @@
     let toset
     if (text) {
       debugArea.innerText = text
-      toset = "10vh"
     } else {
       debugArea.innerText = ""
-      toset = "80vh"
     }
     if (debugArea.classList.contains('enabled')) {
       mainInput.style.height = toset
@@ -284,8 +282,8 @@
   }
 
   #mainInput {
-    width: 100%;
-    height: 100%;
+    width: 80%;
+    height: 80%;
     min-height: 10vh;
     padding: 5px;
   }
