@@ -5,29 +5,37 @@
 </head>
 <body>
 
-  <label for="sessionLengthInput" >Session length (minutes):</label>
-  <input id="sessionLengthInput" type="number" data-default=10>
+  <div id="settingsContainer">
+    <button id="activate"></button>
 
-  <label for="gracePeriodInput">Idle grace period (seconds):</label>
-  <input id="gracePeriodInput" type="number" data-default=3>
+    <div>
+      <label for="sessionLengthInput" >Session length (minutes):</label>
+      <input id="sessionLengthInput" type="number" data-default=10>
+    </div>
 
-  <br>
+    <div>
+      <label for="gracePeriodInput">Idle grace period (seconds):</label>
+      <input id="gracePeriodInput" type="number" data-default=3>
+    </div>
+  </div>
 
-  <button id="activate"></button>
+  <div id="stateContainer">
+    <div>
+      <span id="sessionTimer" data-seconds="0">00:00</span>
+      <span id="graceTimer" data-seconds="0">00:00</span>
+    </div>
+  </div>
 
-  <br>
+  <div id="inputContainer">
+    <div>
+      <textarea id="mainInput"></textarea>
+    </div>
 
-  <span id="sessionTimer" data-seconds="0">00:00</span>
-  <span id="graceTimer" data-seconds="0">00:00</span>
-
-  <label for="wordCount">words:</label>
-  <span id="wordCount">0</span>
-
-  <br>
-
-  <textarea id="mainInput"></textarea>
-
-  <br>
+    <div>
+      <label for="wordCount">words:</label>
+      <span id="wordCount">0</span>
+    </div>
+  </div>
 
   <p id="debugArea" class="disabled"></p>
 
@@ -271,12 +279,15 @@
 
   body {
     background: lightgray;
+    display: flex;
+    flex-direction: column;
   }
 
   #mainInput {
-    /*margin: auto;*/
-    width: 80vw;
-    height: 80vh;
+    width: 100%;
+    height: 100%;
+    min-height: 10vh;
+    padding: 5px;
   }
 
   #graceTimer {
@@ -296,6 +307,19 @@
 
   #debugArea.disabled {
     display: none;
+  }
+
+  #settingsContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+  #settingsContainer>* {
+    padding: 10px
+  }
+
+  #stateContainer>* {
+    padding: 10px
   }
 
 </style>
