@@ -33,7 +33,10 @@
 
   const ONE_SECOND = 1000
 
-  window.onload = () => setState("READY")
+  window.onload = () => {
+    init()
+    setState("READY")
+  }
 
   activate.addEventListener("click", () => {
     switch(activate.dataset.state) {
@@ -58,11 +61,32 @@
     }
   })
 
+  function init() {
+    function readTextFile(file, cb)
+    {
+        var rawFile = new XMLHttpRequest();
+        rawFile.open("GET", file, false);
+        rawFile.onreadystatechange = function ()
+        {
+            if(rawFile.readyState === 4)
+            {
+                if(rawFile.status === 200 || rawFile.status == 0)
+                {
+                    var allText = rawFile.responseText;
+                    cb(allText);
+                }
+            }
+        }
+        rawFile.send(null, (text) => debug(text));
+    }
+
+    debug('ready!')
+    readTextFile("file://./README.md")
+  }
   function setState(state) {
     activate.dataset.state = state
     switch(state) {
     case "READY":
-      debug('ready!')
       activate.innerText = "Start"
       mainInput.placeholder = "waiting for session to start..."
       mainInput.disabled = true
