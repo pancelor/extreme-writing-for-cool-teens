@@ -191,7 +191,8 @@
       // no words yet
       return text
     }
-    const result = /\s*\S+\s*$/.exec(text)
+    // const result = /\s*\S+\s*$/.exec(text)
+    const result = /\S+\s*$/.exec(text)
     if (result) {
       return text.slice(0, result.index)
     } else {
