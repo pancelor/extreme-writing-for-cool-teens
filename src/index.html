@@ -32,59 +32,7 @@
 
   const ONE_SECOND = 1000
 
-  sessionLengthInput.addEventListener('blur', () => {
-    // remove floats, use default
-    sessionLengthInput.value = parseInt(sessionLengthInput.value) || sessionLengthInput.dataset.default
-  })
-  gracePeriodInput.addEventListener('blur', () => {
-    // remove floats, use default
-    gracePeriodInput.value = parseInt(gracePeriodInput.value) || gracePeriodInput.dataset.default
-  })
-
-  let sessionInterval
-  function resetSessionInterval({start, hard}) {
-    clearInterval(sessionInterval)
-    if (start) {
-      sessionInterval = setInterval(() => {
-        seconds = parseInt(sessionTimer.dataset.seconds)
-        seconds -= 1
-        setSessionTimer(seconds)
-        if (seconds <= 0) {
-          setState("DONE")
-        }
-      }, ONE_SECOND)
-    }
-  }
-
-  let graceInterval
-  function resetGraceInterval({start}) {
-    clearInterval(graceInterval)
-    if (start) {
-      graceInterval = setInterval(() => {
-        seconds = parseInt(graceTimer.dataset.seconds)
-        seconds -= 1
-        if (seconds >= 0) {
-          setGraceTimer(seconds)
-        } else {
-          graceTimer.classList.add("danger")
-          setTimeout(() => graceTimer.classList.remove("danger"), 1/4*ONE_SECOND)
-          mainInput.value = dropLastWord(mainInput.value)
-        }
-      }, ONE_SECOND)
-    }
-
-    setGraceTimer(gracePeriodInput.value)
-  }
-
-  function logChange(e) {
-    if (e.key != " ") {
-      setGraceTimer(gracePeriodInput.value)
-    }
-  }
-  // mainInput.addEventListener("change", logChange)
-  mainInput.addEventListener("keypress", logChange)
-  mainInput.addEventListener("paste", logChange)
-  // mainInput.addEventListener("input", logChange)
+  window.onload = () => setState("READY")
 
   activate.addEventListener("click", () => {
     switch(activate.dataset.state) {
@@ -158,7 +106,58 @@
     }
   }
 
-  window.onload = () => setState("READY")
+
+  let sessionInterval
+  function resetSessionInterval({start, hard}) {
+    clearInterval(sessionInterval)
+    if (start) {
+      sessionInterval = setInterval(() => {
+        seconds = parseInt(sessionTimer.dataset.seconds)
+        seconds -= 1
+        setSessionTimer(seconds)
+        if (seconds <= 0) {
+          setState("DONE")
+        }
+      }, ONE_SECOND)
+    }
+  }
+
+  let graceInterval
+  function resetGraceInterval({start}) {
+    clearInterval(graceInterval)
+    if (start) {
+      graceInterval = setInterval(() => {
+        seconds = parseInt(graceTimer.dataset.seconds)
+        seconds -= 1
+        if (seconds >= 0) {
+          setGraceTimer(seconds)
+        } else {
+          graceTimer.classList.add("danger")
+          setTimeout(() => graceTimer.classList.remove("danger"), 1/4*ONE_SECOND)
+          mainInput.value = dropLastWord(mainInput.value)
+        }
+      }, ONE_SECOND)
+    }
+
+    setGraceTimer(gracePeriodInput.value)
+  }
+
+  function noticeTyping(e) {
+    if (e.key != " ") {
+      setGraceTimer(gracePeriodInput.value)
+    }
+  }
+  mainInput.addEventListener("keypress", noticeTyping)
+  mainInput.addEventListener("paste", noticeTyping)
+
+  sessionLengthInput.addEventListener('blur', () => {
+    // remove floats, use default
+    sessionLengthInput.value = parseInt(sessionLengthInput.value) || sessionLengthInput.dataset.default
+  })
+  gracePeriodInput.addEventListener('blur', () => {
+    // remove floats, use default
+    gracePeriodInput.value = parseInt(gracePeriodInput.value) || gracePeriodInput.dataset.default
+  })
 
   //
   // helpers
@@ -183,7 +182,7 @@
 
   // formats an integer number of seconds as a "mm:ss" string
   function formatSeconds(seconds) {
-    const {div: mm, mod: ss} = divmod(seconds, 60)
+    const { div: mm, mod: ss } = divmod(seconds, 60)
     return `${leftpad(mm, 2, "0")}:${leftpad(ss, 2, "0")}`
   }
 
