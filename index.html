@@ -141,14 +141,21 @@
     setGraceTimer(gracePeriodInput.value)
   }
 
-  function noticeTyping(e) {
-    debug(JSON.stringify(e))
-    if (e.data && /\S+/.exec(e.data)) {
-      setGraceTimer(gracePeriodInput.value)
+  function noticeTypingMaker(label) {
+    return function noticeTyping(e) {
+      debug(JSON.stringify({label, e}))
+      if (e.data && /\S+/.exec(e.data)) {
+        setGraceTimer(gracePeriodInput.value)
+      }
     }
   }
-  mainInput.addEventListener("input", noticeTyping)
-  mainInput.addEventListener("paste", noticeTyping)
+
+  mainInput.addEventListener("input", noticeTypingMaker("input"))
+  mainInput.addEventListener("paste", noticeTypingMaker("paste"))
+  mainInput.addEventListener("change", noticeTypingMaker("change"))
+  mainInput.addEventListener("keypress", noticeTypingMaker("keypress"))
+  mainInput.addEventListener("keyup", noticeTypingMaker("keyup"))
+  mainInput.addEventListener("keydown", noticeTypingMaker("keydown"))
 
   sessionLengthInput.addEventListener('blur', () => {
     // remove floats, use default
