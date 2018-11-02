@@ -5,49 +5,202 @@
 </head>
 <body>
 
-  <label for="sessionLength">Session length (minutes):</label>
-  <input id="sessionLength" type="number">
+  <label for="sessionLengthInput">Session length (minutes):</label>
+  <input id="sessionLengthInput" type="number">
 
-  <label for="gracePeriod">Idle grace period (seconds):</label>
-  <input id="gracePeriod" type="number">
-
-  <button id="activate" data-state="NEW">Start</button>
-  <!-- <input type="button" id="activate" value="Start" data-state="OFF"/> -->
+  <label for="gracePeriodInput">Idle grace period (seconds):</label>
+  <input id="gracePeriodInput" type="number">
 
   <br>
 
-  <p id="sessionTimer" data-seconds="0">00:00</p>
-  <p id="graceTimer" data-seconds="0">00:00</p>
+  <button id="activate"></button>
+  <!-- <input type="button" id="activate" value="" data-state="READY"/> -->
+
+  <br>
+
+  <span id="sessionTimer" data-seconds="0">00:00</span>
+  <span id="graceTimer" data-seconds="0">00:00</span>
 
   <br>
 
   <!-- <label for="mainInput">Write here:</label> -->
   <!-- <textarea id="mainInput" cols="50" rows="10"></textarea> -->
-  <textarea id="mainInput" style="width:50vw; height: 80vh"></textarea>
+  <textarea id="mainInput"></textarea>
 
 </body>
-<script type="text/javascript">
+<style type="text/css">
 
-  var sessionTicker
-  function resetSessionTicker() {
-    if (sessionTicker) { sessionTicker.clearInterval() }
-    sessionTicker = setInterval(() => {
-      seconds = parseInt(sessionTimer.dataset.seconds)
-      seconds += 1
-      sessionTimer.dataset.seconds = seconds
-      sessionTimer.innerText = formatSeconds(seconds)
-    }, 1000)
+  body {
+    background: lightgray;
   }
 
-  var graceTicker
-  function resetGraceTicker() {
-    if (graceTicker) { graceTicker.clearInterval() }
-    graceTicker = setInterval(() => {
-      // seconds = parseInt(sessionTimer.dataset.seconds)
-      // seconds += 1
-      // sessionTimer.dataset.seconds = seconds
-      // sessionTimer.innerText = formatSeconds(seconds)
-    }, 1000)
+  #mainInput {
+    margin: auto;
+    width: 80vw;
+    height: 80vh;
+  }
+
+  #graceTimer {
+    font-size: 1em;
+  }
+
+  #graceTimer.danger {
+    color: red;
+  }
+
+  #sessionTimer {
+    font-size: 1em;
+  }
+
+  #sessionTimer.done {
+    font-size: 2em;
+    color: green;
+  }
+
+</style>
+<script type="text/javascript">
+
+  const ONE_SECOND = 1000
+
+  sessionLengthInput.addEventListener('blur', () => {
+    // remove floats
+    sessionLengthInput.value = parseInt(sessionLengthInput.value)
+  })
+  gracePeriodInput.addEventListener('blur', () => {
+    // remove floats
+    gracePeriodInput.value = parseInt(gracePeriodInput.value)
+  })
+
+  let sessionInterval
+  function resetSessionInterval({start, hard}) {
+    clearInterval(sessionInterval)
+    if (start) {
+      sessionInterval = setInterval(() => {
+        seconds = parseInt(sessionTimer.dataset.seconds)
+        seconds += 1
+        if (seconds < 60*parseInt(sessionLengthInput.value)) {
+          setSessionTimer(seconds)
+        } else {
+          setState("DONE")
+        }
+      }, ONE_SECOND)
+    }
+  }
+
+  let graceInterval
+  function resetGraceInterval({start}) {
+    clearInterval(graceInterval)
+    if (start) {
+      graceInterval = setInterval(() => {
+        seconds = parseInt(graceTimer.dataset.seconds)
+        seconds -= 1
+        if (seconds >= 0) {
+          setGraceTimer(seconds)
+        } else {
+          graceTimer.classList.add("danger")
+          setTimeout(() => graceTimer.classList.remove("danger"), 1/4*ONE_SECOND)
+          mainInput.value = dropLastWord(mainInput.value)
+        }
+      }, ONE_SECOND)
+    }
+
+    setGraceTimer(gracePeriodInput.value)
+  }
+
+  function logChange(e) {
+    if (e.key != " ") {
+      setGraceTimer(gracePeriodInput.value)
+    }
+  }
+  // mainInput.addEventListener("change", logChange)
+  mainInput.addEventListener("keypress", logChange)
+  mainInput.addEventListener("paste", logChange)
+  // mainInput.addEventListener("input", logChange)
+
+  activate.addEventListener("click", () => {
+    switch(activate.dataset.state) {
+    case "READY":
+      setSessionTimer(0)
+      setState("UNPAUSED")
+      break
+    case "UNPAUSED":
+      setState("PAUSED")
+      break
+    case "PAUSED":
+      setState("UNPAUSED")
+      break
+    case "DONE":
+      sessionTimer.classList.remove("done")
+      setSessionTimer(0)
+      setState("UNPAUSED")
+      break
+    default:
+      console.error(`unknown state '${activate.dataset.state}'`)
+      return
+    }
+  })
+
+  function setState(state) {
+    activate.dataset.state = state
+    switch(state) {
+    case "READY":
+      activate.innerText = "Start"
+      mainInput.disabled = true
+      mainInput.placeholder = "start session to activate"
+      break
+    case "UNPAUSED":
+      activate.innerText = "Pause"
+      mainInput.disabled = false
+      mainInput.placeholder = "Write!"
+      mainInput.focus()
+
+      resetGraceInterval({start: true})
+      resetSessionInterval({start: true})
+
+      break
+    case "PAUSED":
+      mainInput.disabled = true
+      activate.innerText = "Unpause"
+
+      resetGraceInterval({start: false})
+      resetSessionInterval({start: false})
+      break
+    case "DONE":
+      activate.innerText = "Re-start"
+      sessionTimer.classList.add("done")
+
+      resetGraceInterval({start: false})
+      resetSessionInterval({start: false})
+      break
+    default: console.error(`unknown state '${activate.dataset.state}'`)
+    }
+  }
+
+  window.onload = function init() {
+    sessionLengthInput.value = 10
+    gracePeriodInput.value = 5
+    setState("READY")
+  }
+
+  //
+  // helpers
+  //
+
+  function setSessionTimer(seconds) {
+    sessionTimer.dataset.seconds = seconds
+    sessionTimer.innerText = formatSeconds(seconds)
+  }
+
+  function setGraceTimer(seconds) {
+    graceTimer.dataset.seconds = seconds
+    graceTimer.innerText = formatSeconds(seconds)
+  }
+
+  function divmod(y, x) {
+    return {
+      div: Math.floor(y/x),
+      mod: y % x,
+    }
   }
 
   // formats an integer number of seconds as a "mm:ss" string
@@ -56,57 +209,17 @@
     return `${leftpad(mm, 2, "0")}:${leftpad(ss, 2, "0")}`
   }
 
-  activate.addEventListener("click", () => {
-    // switch state
-    switch(activate.dataset.state) {
-    case "NEW":    activate.dataset.state = "OFF"; break
-    case "OFF":    activate.dataset.state = "ON"; break
-    case "ON":     activate.dataset.state = "PAUSED"; break
-    case "PAUSED": activate.dataset.state = "ON"; break
-    case "DONE":   activate.dataset.state = "ON"; break
-    default:
-      console.error(`unknown state '${activate.dataset.state}'`)
-      return
+  function dropLastWord(text) {
+    if (!/\S/.exec(text)) {
+      // no words yet
+      return text
     }
-
-    // do stuff in new state
-    switch(activate.dataset.state) {
-    case "OFF":
-      activate.innerText = "Start"
-      mainInput.disabled = true
-      mainInput.placeholder = "start session to activate"
-      break
-    case "ON":
-      activate.innerText = "Pause"
-      mainInput.disabled = false
-      mainInput.placeholder = "Go!"
-      mainInput.focus()
-      break
-    case "PAUSED":
-      mainInput.disabled = true
-      activate.innerText = "Unpause"
-      break
-    case "DONE":
-      activate.innerText = "Re-start"
-      break
-    default: console.error(`unknown state '${activate.dataset.state}'`)
-    }
-  })
-
-  (function init() {
-    activate.click()
-    resetGraceTicker()
-    resetSessionTicker()
-  })()
-
-  //
-  // helpers
-  //
-
-  function divmod(y, x) {
-    return {
-      div: Math.floor(y/x),
-      mod: y % x,
+    const result = /\s*\S+\s*$/.exec(text)
+    if (result) {
+      return text.slice(0, result.index)
+    } else {
+      console.error(`couldn't remove last word of '${text}'`)
+      return text
     }
   }
 
