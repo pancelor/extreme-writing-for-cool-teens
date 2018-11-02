@@ -20,6 +20,9 @@
   <span id="sessionTimer" data-seconds="0">00:00</span>
   <span id="graceTimer" data-seconds="0">00:00</span>
 
+  <label for="wordCount">words:</label>
+  <span id="wordCount">0</span>
+
   <br>
 
   <textarea id="mainInput"></textarea>
@@ -31,11 +34,11 @@
 </body>
 <script type="text/javascript">
 
-  const ONE_SECOND = 1000
+  const ONE_SECOND = 100
 
   window.onload = () => {
-    init()
     setState("READY")
+    init()
   }
 
   activate.addEventListener("click", () => {
@@ -77,11 +80,11 @@
                 }
             }
         }
-        rawFile.send(null, (text) => debug(text));
+        rawFile.send(null);
     }
 
     debug('ready!')
-    readTextFile("file://./README.md")
+    readTextFile("file://./README.md", (text) => debug(text))
   }
   function setState(state) {
     activate.dataset.state = state
@@ -158,6 +161,7 @@
           graceTimer.classList.add("danger")
           setTimeout(() => graceTimer.classList.remove("danger"), 1/4*ONE_SECOND)
           mainInput.value = dropLastWord(mainInput.value)
+          noticeWordCount()
         }
       }, ONE_SECOND)
     }
@@ -165,12 +169,17 @@
     setGraceTimer(gracePeriodInput.value)
   }
 
+  function noticeWordCount() {
+    wordCount.innerText = countWords(mainInput.value)
+  }
+
   function noticeTypingMaker(label) {
     return function noticeTyping(e) {
-      debug(JSON.stringify({label, e}))
+      debug(label)
       if (e.data && /\S+/.exec(e.data)) {
         setGraceTimer(gracePeriodInput.value)
       }
+      noticeWordCount()
     }
   }
 
@@ -240,6 +249,10 @@
       console.error(`couldn't remove last word of '${text}'`)
       return text
     }
+  }
+
+  function countWords(text) {
+    return (text || "").split(/\s+/).filter(x=>x).length
   }
 
   function leftpad (str, len, ch) {
