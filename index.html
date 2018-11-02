@@ -137,11 +137,12 @@
   }
 
   function noticeTyping(e) {
-    if (e.key != " ") {
+    console.log(e);
+    if (e.data != " ") {
       setGraceTimer(gracePeriodInput.value)
     }
   }
-  mainInput.addEventListener("keypress", noticeTyping)
+  mainInput.addEventListener("input", noticeTyping)
   mainInput.addEventListener("paste", noticeTyping)
 
   sessionLengthInput.addEventListener('blur', () => {
