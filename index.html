@@ -29,7 +29,7 @@
 
   <br>
 
-  <p id="debugArea"></p>
+  <p id="debugArea" class="disabled"></p>
 
 </body>
 <script type="text/javascript">
@@ -64,29 +64,25 @@
     }
   })
 
-  // function init() {
-  //   function readTextFile(file, cb)
-  //   {
-  //       var rawFile = new XMLHttpRequest();
-  //       rawFile.open("GET", file, false);
-  //       rawFile.setRequestHeader('Access-Control-Allow-Origin', '*')
-  //       rawFile.onreadystatechange = function ()
-  //       {
-  //           if(rawFile.readyState === 4)
-  //           {
-  //               if(rawFile.status === 200 || rawFile.status == 0)
-  //               {
-  //                   var allText = rawFile.responseText;
-  //                   cb(allText);
-  //               }
-  //           }
-  //       }
-  //       rawFile.send(null);
-  //   }
+  function init() {
+    // function readTextFile(file, cb) {
+    //   var rawFile = new XMLHttpRequest();
+    //   rawFile.open("GET", file, false);
+    //   rawFile.setRequestHeader('Access-Control-Allow-Origin', '*')
+    //   rawFile.onreadystatechange = function () {
+    //     if(rawFile.readyState === 4) {
+    //       if(rawFile.status === 200 || rawFile.status == 0) {
+    //         var allText = rawFile.responseText;
+    //         cb(allText);
+    //       }
+    //     }
+    //   }
+    //   rawFile.send(null);
+    // }
 
-  //   debug('ready!')
-  //   readTextFile("file://./README.md", (text) => debug(text))
-  // }
+    // debug('ready!')
+    // readTextFile("file://./README.md", (text) => debug(text))
+  }
 
   function setState(state) {
     activate.dataset.state = state
@@ -206,12 +202,16 @@
   //
 
   function debug(text) {
+    let toset
     if (text) {
       debugArea.innerText = text
-      mainInput.style.height = "20vh"
+      toset = "5vh"
     } else {
       debugArea.innerText = ""
-      mainInput.style.height = "80vh" //@TODO sync with default somehow
+      toset = "80vh"
+    }
+    if (debugArea.classList.contains('enabled')) {
+      mainInput.style.height = toset
     }
   }
 
@@ -299,6 +299,10 @@
   #sessionTimer.done {
     font-size: 2em;
     color: green;
+  }
+
+  #debugArea.disabled {
+    display: none;
   }
 
 </style>
