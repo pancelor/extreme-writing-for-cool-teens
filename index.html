@@ -34,7 +34,7 @@
 </body>
 <script type="text/javascript">
 
-  const ONE_SECOND = 100
+  const ONE_SECOND = 1000
 
   window.onload = () => {
     setState("READY")
@@ -64,28 +64,30 @@
     }
   })
 
-  function init() {
-    function readTextFile(file, cb)
-    {
-        var rawFile = new XMLHttpRequest();
-        rawFile.open("GET", file, false);
-        rawFile.onreadystatechange = function ()
-        {
-            if(rawFile.readyState === 4)
-            {
-                if(rawFile.status === 200 || rawFile.status == 0)
-                {
-                    var allText = rawFile.responseText;
-                    cb(allText);
-                }
-            }
-        }
-        rawFile.send(null);
-    }
+  // function init() {
+  //   function readTextFile(file, cb)
+  //   {
+  //       var rawFile = new XMLHttpRequest();
+  //       rawFile.open("GET", file, false);
+  //       rawFile.setRequestHeader('Access-Control-Allow-Origin', '*')
+  //       rawFile.onreadystatechange = function ()
+  //       {
+  //           if(rawFile.readyState === 4)
+  //           {
+  //               if(rawFile.status === 200 || rawFile.status == 0)
+  //               {
+  //                   var allText = rawFile.responseText;
+  //                   cb(allText);
+  //               }
+  //           }
+  //       }
+  //       rawFile.send(null);
+  //   }
 
-    debug('ready!')
-    readTextFile("file://./README.md", (text) => debug(text))
-  }
+  //   debug('ready!')
+  //   readTextFile("file://./README.md", (text) => debug(text))
+  // }
+
   function setState(state) {
     activate.dataset.state = state
     switch(state) {
@@ -206,10 +208,10 @@
   function debug(text) {
     if (text) {
       debugArea.innerText = text
-      mainInput.style.height = "10vh"
+      // mainInput.style.height = "10vh"
     } else {
       debugArea.innerText = ""
-      mainInput.style.height = "80vh" //@TODO sync with default somehow
+      // mainInput.style.height = "80vh" //@TODO sync with default somehow
     }
   }
 
