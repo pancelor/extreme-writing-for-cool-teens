@@ -29,7 +29,7 @@
 
   <br>
 
-  <p id="debugArea" class="enabled"></p>
+  <p id="debugArea" class="disabled"></p>
 
 </body>
 <script type="text/javascript">
@@ -171,22 +171,15 @@
     wordCount.innerText = countWords(mainInput.value)
   }
 
-  function noticeTypingMaker(label) {
-    return function noticeTyping(e) {
-      debug(label)
-      if (e.data && /\S+/.exec(e.data)) {
-        setGraceTimer(gracePeriodInput.value)
-      }
-      noticeWordCount()
+  function noticeTyping(e) {
+    if (e.key && /^\S$/.exec(e.key)) {
+      setGraceTimer(gracePeriodInput.value)
     }
+    noticeWordCount()
   }
 
-  mainInput.addEventListener("input", noticeTypingMaker("input"))
-  mainInput.addEventListener("paste", noticeTypingMaker("paste"))
-  mainInput.addEventListener("change", noticeTypingMaker("change"))
-  mainInput.addEventListener("keypress", noticeTypingMaker("keypress"))
-  mainInput.addEventListener("keyup", noticeTypingMaker("keyup"))
-  mainInput.addEventListener("keydown", noticeTypingMaker("keydown"))
+  // mainInput.addEventListener("keyup", noticeTyping) // for android
+  mainInput.addEventListener("keypress", noticeTyping)
 
   sessionLengthInput.addEventListener('blur', () => {
     // remove floats, use default
@@ -205,7 +198,7 @@
     let toset
     if (text) {
       debugArea.innerText = text
-      toset = "5vh"
+      toset = "10vh"
     } else {
       debugArea.innerText = ""
       toset = "80vh"
