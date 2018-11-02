@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Write and/or die</title>
+</head>
+<body>
+
+  <label for="sessionLength">Session length (minutes):</label>
+  <input id="sessionLength" type="number">
+
+  <label for="gracePeriod">Idle grace period (seconds):</label>
+  <input id="gracePeriod" type="number">
+
+  <button id="activate" data-state="NEW">Start</button>
+  <!-- <input type="button" id="activate" value="Start" data-state="OFF"/> -->
+
+  <br>
+
+  <p id="sessionTimer" data-seconds="0">00:00</p>
+  <p id="graceTimer" data-seconds="0">00:00</p>
+
+  <br>
+
+  <!-- <label for="mainInput">Write here:</label> -->
+  <!-- <textarea id="mainInput" cols="50" rows="10"></textarea> -->
+  <textarea id="mainInput" style="width:50vw; height: 80vh"></textarea>
+
+</body>
+<script type="text/javascript">
+
+  var sessionTicker
+  function resetSessionTicker() {
+    if (sessionTicker) { sessionTicker.clearInterval() }
+    sessionTicker = setInterval(() => {
+      seconds = parseInt(sessionTimer.dataset.seconds)
+      seconds += 1
+      sessionTimer.dataset.seconds = seconds
+      sessionTimer.innerText = formatSeconds(seconds)
+    }, 1000)
+  }
+
+  var graceTicker
+  function resetGraceTicker() {
+    if (graceTicker) { graceTicker.clearInterval() }
+    graceTicker = setInterval(() => {
+      // seconds = parseInt(sessionTimer.dataset.seconds)
+      // seconds += 1
+      // sessionTimer.dataset.seconds = seconds
+      // sessionTimer.innerText = formatSeconds(seconds)
+    }, 1000)
+  }
+
+  // formats an integer number of seconds as a "mm:ss" string
+  function formatSeconds(seconds) {
+    const {div: mm, mod: ss} = divmod(seconds, 60)
+    return `${leftpad(mm, 2, "0")}:${leftpad(ss, 2, "0")}`
+  }
+
+  activate.addEventListener("click", () => {
+    // switch state
+    switch(activate.dataset.state) {
+    case "NEW":    activate.dataset.state = "OFF"; break
+    case "OFF":    activate.dataset.state = "ON"; break
+    case "ON":     activate.dataset.state = "PAUSED"; break
+    case "PAUSED": activate.dataset.state = "ON"; break
+    case "DONE":   activate.dataset.state = "ON"; break
+    default:
+      console.error(`unknown state '${activate.dataset.state}'`)
+      return
+    }
+
+    // do stuff in new state
+    switch(activate.dataset.state) {
+    case "OFF":
+      activate.innerText = "Start"
+      mainInput.disabled = true
+      mainInput.placeholder = "start session to activate"
+      break
+    case "ON":
+      activate.innerText = "Pause"
+      mainInput.disabled = false
+      mainInput.placeholder = "Go!"
+      mainInput.focus()
+      break
+    case "PAUSED":
+      mainInput.disabled = true
+      activate.innerText = "Unpause"
+      break
+    case "DONE":
+      activate.innerText = "Re-start"
+      break
+    default: console.error(`unknown state '${activate.dataset.state}'`)
+    }
+  })
+
+  (function init() {
+    activate.click()
+    resetGraceTicker()
+    resetSessionTicker()
+  })()
+
+  //
+  // helpers
+  //
+
+  function divmod(y, x) {
+    return {
+      div: Math.floor(y/x),
+      mod: y % x,
+    }
+  }
+
+  function leftpad (str, len, ch) {
+    str = String(str);
+
+    var i = -1;
+
+    if (!ch && ch !== 0) ch = ' ';
+
+    len = len - str.length;
+
+    while (++i < len) {
+      str = ch + str;
+    }
+
+    return str;
+  }
+
+</script>
+</html>
