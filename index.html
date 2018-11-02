@@ -137,8 +137,7 @@
   }
 
   function noticeTyping(e) {
-    console.log(e);
-    if (e.data != " ") {
+    if (e.data && /\S+/.exec(e.data)) {
       setGraceTimer(gracePeriodInput.value)
     }
   }
