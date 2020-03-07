@@ -207,6 +207,13 @@
   // helpers
   //
 
+  function assert(b, msg=null) {
+    if (!b) {
+      msg = (msg === null) ? "assert error" : msg
+      throw new Error(msg)
+    }
+  }
+
   function debug(text) {
     let toset
     if (text) {
