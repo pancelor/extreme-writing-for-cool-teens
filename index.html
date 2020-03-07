@@ -45,6 +45,7 @@
   const ONE_SECOND = 1000
 
   window.onload = () => {
+    InitLS()
     setState("READY")
     init()
   }
@@ -102,8 +103,8 @@
       sessionLengthInput.disabled = false
       gracePeriodInput.disabled = false
 
-      sessionLengthInput.value = sessionLengthInput.dataset.default
-      gracePeriodInput.value = gracePeriodInput.dataset.default
+      sessionLengthInput.value = LS.get("sessionLength") || sessionLengthInput.dataset.default
+      gracePeriodInput.value = LS.get("gracePeriod") || gracePeriodInput.dataset.default
       break
     case "UNPAUSED":
       activate.innerText = "Pause"
@@ -190,12 +191,16 @@
   mainInput.addEventListener("input", noticeTyping)
 
   sessionLengthInput.addEventListener('blur', () => {
-    // remove floats, use default
-    sessionLengthInput.value = parseInt(sessionLengthInput.value) || sessionLengthInput.dataset.default
+    // remove floats, use default, store
+    const v = parseInt(sessionLengthInput.value) || sessionLengthInput.dataset.default
+    sessionLengthInput.value = v
+    LS.set("sessionLength", v)
   })
   gracePeriodInput.addEventListener('blur', () => {
-    // remove floats, use default
-    gracePeriodInput.value = parseInt(gracePeriodInput.value) || gracePeriodInput.dataset.default
+    // remove floats, use default, store
+    const v = parseInt(gracePeriodInput.value) || gracePeriodInput.dataset.default
+    gracePeriodInput.value = v
+    LS.set("gracePeriod", v)
   })
 
   //
@@ -237,6 +242,10 @@
     return `${leftpad(mm, 2, "0")}:${leftpad(ss, 2, "0")}`
   }
 
+  function defaultOpt(opt, def) {
+    return (opt === undefined) ? def : opt
+  }
+
   function dropLastWord(text) {
     if (!/\S/.exec(text)) {
       // no words yet
@@ -270,6 +279,74 @@
     }
 
     return str;
+  }
+
+  //
+  // local storage
+  //
+
+  let LS
+  function InitLS() {
+    // call me once on page load
+    LS = new LocalStorage()
+  }
+  class LocalStorage {
+    constructor() {
+      this._cache = {}
+      this._frd = isLocalStorageAvailable()
+      if (this._frd) {
+        this.loadCache()
+      }
+    }
+
+    loadCache() {
+      assert(this._frd)
+      for (const key of Object.keys(window.localStorage)) {
+        const val = window.localStorage[key]
+        try {
+          this._cache[key] = JSON.parse(val)
+        } catch (err) {
+          console.warn(`Error parsing localStorage: [${key}]=${val}`)
+        }
+      }
+    }
+
+    clear() {
+      this._cache = {}
+      if (this._frd) window.localStorage.clear()
+    }
+
+    set(k, v) {
+      this._cache[k] = v
+      if (this._frd) window.localStorage[k] = JSON.stringify(v)
+    }
+
+    get(k) {
+      const cached = this._cache[k]
+      // if (this._frd) {
+      //   const backed = window.localStorage[k]
+      //   if (backed) assertObjEqual(JSON.parse(backed), cached)
+      // }
+      return cached
+    }
+
+    del(k) {
+      delete this._cache[k]
+      if (this._frd) delete window.localStorage[k]
+    }
+  }
+
+  function isLocalStorageAvailable() {
+    return runsSuccessfully(() => window.localStorage)
+  }
+
+  function runsSuccessfully(cb) {
+    try {
+      cb()
+      return true
+    } catch (e) {
+      return false
+    }
   }
 
 </script>
