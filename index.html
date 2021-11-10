@@ -47,7 +47,6 @@
   window.onload = () => {
     setupLocalStorage()
     setState("READY")
-    init()
   }
 
   activate.addEventListener("click", () => {
@@ -72,26 +71,6 @@
       return
     }
   })
-
-  function init() {
-    // function readTextFile(file, cb) {
-    //   var rawFile = new XMLHttpRequest();
-    //   rawFile.open("GET", file, false);
-    //   rawFile.setRequestHeader('Access-Control-Allow-Origin', '*')
-    //   rawFile.onreadystatechange = function () {
-    //     if(rawFile.readyState === 4) {
-    //       if(rawFile.status === 200 || rawFile.status == 0) {
-    //         var allText = rawFile.responseText;
-    //         cb(allText);
-    //       }
-    //     }
-    //   }
-    //   rawFile.send(null);
-    // }
-
-    // debug('ready!')
-    // readTextFile("file://./README.md", (text) => debug(text))
-  }
 
   function setState(state) {
     activate.dataset.state = state
@@ -120,7 +99,7 @@
     case "PAUSED":
       activate.innerText = "Unpause"
       mainInput.disabled = true
-      sessionLengthInput.disabled = true
+      sessionLengthInput.disabled = false
       gracePeriodInput.disabled = false
 
       resetGraceInterval({start: false})
@@ -136,8 +115,14 @@
       resetGraceInterval({start: false})
       resetSessionInterval({start: false})
       break
-    default: console.error(`unknown state '${activate.dataset.state}'`)
+    default:
+      console.error(`unknown state '${activate.dataset.state}'`)
+      activate.dataset.state = "READY"
+      break
     }
+  }
+  function getState(state) {
+    return activate.dataset.state
   }
 
   let sessionInterval
@@ -193,8 +178,15 @@
   sessionLengthInput.addEventListener('blur', () => {
     // remove floats, use default, store
     const v = parseInt(sessionLengthInput.value) || sessionLengthInput.dataset.default
-    sessionLengthInput.value = v
-    LS.set("sessionLength", v)
+    if (LS.get("sessionLength") !== v) {
+      // made changes
+      sessionLengthInput.value = v
+      LS.set("sessionLength", v)
+      if (getState() === "PAUSED") {
+        setSessionTimer(60*parseInt(sessionLengthInput.value))
+        setState("READY")
+      }
+    }
   })
   gracePeriodInput.addEventListener('blur', () => {
     // remove floats, use default, store
